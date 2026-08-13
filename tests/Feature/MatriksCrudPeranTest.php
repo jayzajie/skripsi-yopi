@@ -73,6 +73,17 @@ class MatriksCrudPeranTest extends TestCase
             'nama' => 'Dokumen QA Baru', 'kode' => 'QA', 'deskripsi' => 'Diperbarui', 'aktif' => false,
         ])->assertSessionHas('sukses');
         $this->assertDatabaseHas('kategori_dokumen', ['id' => $kategori->id, 'nama' => 'Dokumen QA Baru', 'aktif' => false]);
+        $this->actingAs($superAdmin)->delete(route('kategori.hapus', $kategori))->assertSessionHas('sukses');
+        $this->assertDatabaseMissing('kategori_dokumen', ['id' => $kategori->id]);
+
+        $kategoriTerpakai = KategoriDokumen::create(['nama' => 'Terpakai', 'kode' => 'TP', 'aktif' => true]);
+        Surat::create([
+            'kategori_id' => $kategoriTerpakai->id, 'jenis' => 'masuk', 'nomor_agenda' => 'KATEGORI-TERPAKAI',
+            'nomor_surat' => '001/TP', 'tanggal_surat' => '2026-08-13', 'pihak' => 'Penguji',
+            'perihal' => 'Menjaga kategori', 'status' => 'Diterima', 'dibuat_oleh' => $superAdmin->id,
+        ]);
+        $this->actingAs($superAdmin)->delete(route('kategori.hapus', $kategoriTerpakai))->assertUnprocessable();
+        $this->assertDatabaseHas('kategori_dokumen', ['id' => $kategoriTerpakai->id]);
 
         $this->actingAs($superAdmin)->post(route('akun.simpan'), [
             'name' => 'Pegawai QA', 'username' => 'pegawai_qa', 'email' => 'pegawai.qa@example.test',
@@ -120,5 +131,8 @@ class MatriksCrudPeranTest extends TestCase
         $this->actingAs($pegawai)->post(route('surat.simpan', 'masuk'), [])->assertForbidden();
         $this->actingAs($superAdmin)->post(route('surat.simpan', 'masuk'), [])->assertForbidden();
         $this->actingAs($admin)->post(route('kategori.simpan'), [])->assertForbidden();
+        $this->actingAs($admin)->delete(route('kategori.hapus', KategoriDokumen::create([
+            'nama' => 'Khusus Super Admin', 'kode' => 'KSA', 'aktif' => true,
+        ])))->assertForbidden();
     }
 }

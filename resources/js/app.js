@@ -13,8 +13,11 @@ const bacaData = (nilai) => {
 const isiForm = (form, data) => {
     for (const [nama, nilai] of Object.entries(data)) {
         const masukan = form.elements.namedItem(nama);
+        if (masukan instanceof HTMLInputElement && masukan.type === 'file') continue;
         if (masukan instanceof HTMLInputElement || masukan instanceof HTMLSelectElement || masukan instanceof HTMLTextAreaElement) {
-            masukan.value = nama === 'tanggal_surat' ? String(nilai).slice(0, 10) : String(nilai ?? '');
+            masukan.value = nama === 'tanggal_surat'
+                ? String(nilai).slice(0, 10)
+                : String(masukan instanceof HTMLSelectElement && typeof nilai === 'boolean' ? Number(nilai) : nilai ?? '');
         }
     }
 };

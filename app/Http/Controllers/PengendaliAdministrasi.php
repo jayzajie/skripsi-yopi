@@ -52,6 +52,14 @@ class PengendaliAdministrasi extends Controller
         return back()->with('sukses', 'Kategori berhasil diperbarui.');
     }
 
+    public function hapusKategori(KategoriDokumen $kategori): RedirectResponse
+    {
+        abort_if($kategori->surat()->exists(), 422, 'Kategori yang sudah digunakan tidak dapat dihapus.');
+        $kategori->delete();
+
+        return back()->with('sukses', 'Kategori berhasil dihapus.');
+    }
+
     public function akun(): View
     {
         return view('aplikasi', ['pengguna' => Pengguna::orderBy('name')->get(), 'halaman' => 'akun']);

@@ -36,6 +36,7 @@ Route::middleware(['auth', 'aktif'])->group(function () {
         Route::get('/master-data', [PengendaliAdministrasi::class, 'masterData'])->name('master-data');
         Route::post('/master-data', [PengendaliAdministrasi::class, 'simpanKategori'])->name('kategori.simpan');
         Route::put('/master-data/{kategori}', [PengendaliAdministrasi::class, 'perbaruiKategori'])->name('kategori.perbarui');
+        Route::delete('/master-data/{kategori}', [PengendaliAdministrasi::class, 'hapusKategori'])->name('kategori.hapus');
         Route::get('/akun', [PengendaliAdministrasi::class, 'akun'])->name('akun');
         Route::post('/akun', [PengendaliAdministrasi::class, 'simpanAkun'])->name('akun.simpan');
         Route::put('/akun/{pengguna}', [PengendaliAdministrasi::class, 'perbaruiAkun'])->name('akun.perbarui');
