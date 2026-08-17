@@ -1,2 +1,56 @@
-<div class="grid-dua"><section class="panel panel-aksi"><h2>Backup Data</h2><p>Simpan salinan database dan seluruh file arsip.</p><form method="post" action="{{ route('cadangan.buat') }}">@csrf<button class="tombol tombol-primer tombol-penuh"><svg><use href="#i-unggah"/></svg> Mulai Backup</button></form></section><section class="panel panel-aksi"><h2>Restore Data</h2><p>Pulihkan database dan file arsip dari backup ZIP.</p><form method="post" action="{{ route('cadangan.pulihkan') }}" enctype="multipart/form-data" data-konfirmasi="Restore akan mengganti database aktif. Lanjutkan?">@csrf<input type="file" name="cadangan" accept=".zip,application/zip" required><button class="tombol tombol-sekunder tombol-penuh">Restore</button></form></section></div>
-<section class="panel"><h2>Riwayat Backup</h2><div class="bungkus-tabel"><table><thead><tr><th>No</th><th>Tanggal</th><th>Nama File</th><th>Ukuran</th><th>Dibuat Oleh</th><th>Aksi</th></tr></thead><tbody>@forelse($riwayat as $item)<tr><td>{{ $loop->iteration }}</td><td>{{ $item->created_at->format('d/m/y H:i') }}</td><td>{{ $item->nama_file }}</td><td>{{ number_format($item->ukuran/1048576,2,',','.') }} MB</td><td>{{ $item->pembuat->name }}</td><td><a href="{{ route('cadangan.unduh',$item) }}"><svg class="ikon-kecil"><use href="#i-unduh"/></svg> Unduh</a></td></tr>@empty<tr><td colspan="6" class="kosong">Belum ada backup.</td></tr>@endforelse</tbody></table></div></section>
+<div class="grid-dua">
+    <section class="panel panel-aksi">
+        <h2>Backup Data</h2>
+        <p>Simpan salinan database dan seluruh file arsip.</p>
+        <form method="post" action="{{ route('cadangan.buat') }}">
+            @csrf
+            <button class="tombol tombol-primer tombol-penuh">
+                <svg><use href="#i-unggah"/></svg> Mulai Backup
+            </button>
+        </form>
+    </section>
+    <section class="panel panel-aksi">
+        <h2>Restore Data</h2>
+        <p>Pulihkan database dan file arsip dari backup ZIP.</p>
+        <form method="post" action="{{ route('cadangan.pulihkan') }}" enctype="multipart/form-data" data-konfirmasi="Restore akan mengganti database aktif. Lanjutkan?">
+            @csrf
+            <input type="file" name="cadangan" accept=".zip,application/zip" required>
+            <button class="tombol tombol-sekunder tombol-penuh">Restore</button>
+        </form>
+    </section>
+</div>
+<section class="panel">
+    <h2>Riwayat Backup</h2>
+    <div class="bungkus-tabel">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Nama File</th>
+                    <th>Ukuran</th>
+                    <th>Dibuat Oleh</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($riwayat as $item)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $item->created_at->format('d/m/y H:i') }}</td>
+                        <td>{{ $item->nama_file }}</td>
+                        <td>{{ number_format($item->ukuran/1048576,2,',','.') }} MB</td>
+                        <td>{{ $item->pembuat->name }}</td>
+                        <td>
+                            <a href="{{ route('cadangan.unduh',$item) }}">
+                                <svg class="ikon-kecil"><use href="#i-unduh"/></svg> Unduh
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" class="kosong">Belum ada backup.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -86,6 +86,8 @@ document.querySelectorAll('[data-kategori-baru]').forEach((tombol) => tombol.add
     formKategori.reset();
     formKategori.action = '/master-data';
     formKategori.querySelector('[data-metode]').value = 'POST';
+    formKategori.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    formKategori.elements.namedItem('nama').focus();
 }));
 document.querySelectorAll('[data-edit-kategori]').forEach((tombol) => tombol.addEventListener('click', () => {
     if (!(formKategori instanceof HTMLFormElement)) return;

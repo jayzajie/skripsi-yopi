@@ -8,6 +8,7 @@ use App\Models\Surat;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -56,8 +57,9 @@ class PengendaliAplikasi extends Controller
         $suratMasuk = $jenis === 'keluar'
             ? Surat::where('jenis', 'masuk')->latest('tanggal_surat')->get()
             : collect();
+        $nomorOtomatis = $jenis === 'masuk' ? $this->nomorOtomatisSuratMasuk() : [];
 
-        return view('aplikasi', compact('surat', 'jenis', 'kategori', 'pegawai', 'suratMasuk'))->with('halaman', 'surat');
+        return view('aplikasi', compact('surat', 'jenis', 'kategori', 'pegawai', 'suratMasuk', 'nomorOtomatis'))->with('halaman', 'surat');
     }
 
     public function simpanSurat(Request $request, string $jenis): RedirectResponse
@@ -68,13 +70,17 @@ class PengendaliAplikasi extends Controller
             'surat_masuk_id' => $jenis === 'keluar'
                 ? ['nullable', Rule::exists('surat', 'id')->where('jenis', 'masuk')]
                 : ['prohibited'],
-            'nomor_agenda' => ['required', 'string', 'max:100', 'unique:surat,nomor_agenda'],
-            'nomor_surat' => ['required', 'string', 'max:150'],
+            'nomor_agenda' => [$jenis === 'masuk' ? 'nullable' : 'required', 'string', 'max:100', 'unique:surat,nomor_agenda'],
+            'nomor_surat' => [$jenis === 'masuk' ? 'nullable' : 'required', 'string', 'max:150'],
             'tanggal_surat' => ['required', 'date'],
             'pihak' => ['required', 'string', 'max:150'],
             'perihal' => ['required', 'string', 'max:255'],
             'file' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
         ]);
+
+        if ($jenis === 'masuk' && (empty($data['nomor_agenda']) || empty($data['nomor_surat']))) {
+            $data = [...$data, ...$this->nomorOtomatisSuratMasuk()];
+        }
 
         $data['jenis'] = $jenis;
         $data['status'] = $jenis === 'masuk' ? 'Diterima' : 'Konsep';
@@ -83,6 +89,18 @@ class PengendaliAplikasi extends Controller
         Surat::create($data);
 
         return back()->with('sukses', 'Surat berhasil disimpan.');
+    }
+
+    private function nomorOtomatisSuratMasuk(): array
+    {
+        $prefix = 'SM/'.now()->format('Y/m').'/';
+        $urutan = Surat::where('nomor_agenda', 'like', "{$prefix}%")
+            ->pluck('nomor_agenda')->map(fn (string $nomor) => (int) Str::afterLast($nomor, '/'))->max() + 1;
+
+        return [
+            'nomor_agenda' => $prefix.str_pad((string) $urutan, 3, '0', STR_PAD_LEFT),
+            'nomor_surat' => str_pad((string) $urutan, 3, '0', STR_PAD_LEFT).'/SM/'.now()->format('m/Y'),
+        ];
     }
 
     public function perbaruiSurat(Request $request, Surat $surat): RedirectResponse

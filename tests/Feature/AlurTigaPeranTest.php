@@ -52,6 +52,24 @@ class AlurTigaPeranTest extends TestCase
         $this->assertDatabaseHas('surat', ['id' => $surat->id, 'status' => 'Selesai']);
     }
 
+    public function test_nomor_surat_masuk_dibuat_otomatis(): void
+    {
+        $kategori = KategoriDokumen::create(['nama' => 'Surat Masuk', 'kode' => 'SM', 'aktif' => true]);
+        $admin = Pengguna::factory()->create(['peran' => 'admin']);
+
+        $this->actingAs($admin)->post(route('surat.simpan', 'masuk'), [
+            'kategori_id' => $kategori->id,
+            'tanggal_surat' => now()->toDateString(),
+            'pihak' => 'Dinas Pendidikan',
+            'perihal' => 'Nomor otomatis',
+        ])->assertSessionHas('sukses');
+
+        $this->assertDatabaseHas('surat', [
+            'nomor_agenda' => 'SM/'.now()->format('Y/m').'/001',
+            'nomor_surat' => '001/SM/'.now()->format('m/Y'),
+        ]);
+    }
+
     public function test_surat_keluar_baru_terlihat_pegawai_setelah_disetujui_dan_dikirim(): void
     {
         $kategori = KategoriDokumen::create(['nama' => 'Surat Keluar', 'kode' => 'SK', 'aktif' => true]);
