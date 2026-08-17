@@ -39,6 +39,19 @@ document.querySelectorAll('form[data-konfirmasi]').forEach((form) => {
 });
 
 const formSurat = document.querySelector('[data-form-surat]');
+formSurat?.querySelector('[data-surat-masuk]')?.addEventListener('change', (peristiwa) => {
+    const pilihan = peristiwa.currentTarget.selectedOptions[0];
+    if (!pilihan.value) return;
+    const nomorKeluar = (nomor) => nomor.replace(/(^|\/)SM(?=\/|$)/, '$1SK');
+    isiForm(formSurat, {
+        kategori_id: peristiwa.currentTarget.dataset.kategoriKeluar,
+        nomor_agenda: nomorKeluar(pilihan.dataset.agenda),
+        nomor_surat: nomorKeluar(pilihan.dataset.nomor),
+        tanggal_surat: pilihan.dataset.tanggal,
+        pihak: pilihan.dataset.pihak,
+        perihal: pilihan.dataset.perihal,
+    });
+});
 document.querySelector('[data-tambah-surat]')?.addEventListener('click', () => {
     if (!(formSurat instanceof HTMLFormElement)) return;
     formSurat.reset();

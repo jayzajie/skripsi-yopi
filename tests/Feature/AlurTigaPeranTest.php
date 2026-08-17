@@ -80,6 +80,29 @@ class AlurTigaPeranTest extends TestCase
         $this->actingAs($pegawai)->get(route('arsip'))->assertSee('SK/ALUR/001');
     }
 
+    public function test_surat_keluar_dapat_dihubungkan_ke_surat_masuk(): void
+    {
+        $kategori = KategoriDokumen::create(['nama' => 'Surat', 'kode' => 'S', 'aktif' => true]);
+        $admin = Pengguna::factory()->create(['peran' => 'admin']);
+        $suratMasuk = $this->buatSurat(['kategori_id' => $kategori->id]);
+
+        $this->actingAs($admin)->post(route('surat.simpan', 'keluar'), [
+            'kategori_id' => $kategori->id,
+            'surat_masuk_id' => $suratMasuk->id,
+            'nomor_agenda' => 'SK/BALASAN/001',
+            'nomor_surat' => '002/BALASAN',
+            'tanggal_surat' => '2026-08-16',
+            'pihak' => $suratMasuk->pihak,
+            'perihal' => $suratMasuk->perihal,
+        ])->assertSessionHas('sukses');
+
+        $this->assertDatabaseHas('surat', [
+            'nomor_agenda' => 'SK/BALASAN/001',
+            'jenis' => 'keluar',
+            'surat_masuk_id' => $suratMasuk->id,
+        ]);
+    }
+
     public function test_verifikasi_tanda_tangan_terhubung_ke_surat_tersimpan(): void
     {
         Storage::fake('local');

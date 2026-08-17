@@ -23,6 +23,7 @@
         @csrf <input type="hidden" name="_method" value="POST" data-metode>
         <div class="kepala-modal"><h2 data-judul-modal>Tambah Surat {{ ucfirst($jenis) }}</h2><button type="button" class="tombol-ikon" data-tutup-modal aria-label="Tutup"><svg><use href="#i-tutup"/></svg></button></div>
         <div class="isi-modal grid-form">
+            @if($jenis === 'keluar')<label class="rentang-2">Balasan dari Surat Masuk <select name="surat_masuk_id" data-surat-masuk data-kategori-keluar="{{ $kategori->firstWhere('kode', 'SK')?->id }}"><option value="">Bukan balasan surat masuk</option>@foreach($suratMasuk as $item)<option value="{{ $item->id }}" data-agenda="{{ $item->nomor_agenda }}" data-nomor="{{ $item->nomor_surat }}" data-tanggal="{{ $item->tanggal_surat->format('Y-m-d') }}" data-pihak="{{ $item->pihak }}" data-perihal="{{ $item->perihal }}">{{ $item->nomor_agenda }} — {{ $item->perihal }}</option>@endforeach</select></label>@endif
             <label>Nomor Agenda <b>*</b><input name="nomor_agenda" required placeholder="Masukkan nomor agenda"></label>
             <label>Kategori <b>*</b><select name="kategori_id" required><option value="">Pilih kategori</option>@foreach($kategori as $item)<option value="{{ $item->id }}">{{ $item->nama }}</option>@endforeach</select></label>
             <label>Nomor Surat <b>*</b><input name="nomor_surat" required placeholder="Masukkan nomor surat"></label>

@@ -53,8 +53,11 @@ class PengendaliAplikasi extends Controller
 
         $kategori = KategoriDokumen::where('aktif', true)->orderBy('nama')->get();
         $pegawai = Pengguna::where(['peran' => 'pegawai', 'aktif' => true])->orderBy('name')->get();
+        $suratMasuk = $jenis === 'keluar'
+            ? Surat::where('jenis', 'masuk')->latest('tanggal_surat')->get()
+            : collect();
 
-        return view('aplikasi', compact('surat', 'jenis', 'kategori', 'pegawai'))->with('halaman', 'surat');
+        return view('aplikasi', compact('surat', 'jenis', 'kategori', 'pegawai', 'suratMasuk'))->with('halaman', 'surat');
     }
 
     public function simpanSurat(Request $request, string $jenis): RedirectResponse
@@ -62,6 +65,9 @@ class PengendaliAplikasi extends Controller
         abort_unless(in_array($jenis, ['masuk', 'keluar'], true), 404);
         $data = $request->validate([
             'kategori_id' => ['required', Rule::exists('kategori_dokumen', 'id')->where('aktif', true)],
+            'surat_masuk_id' => $jenis === 'keluar'
+                ? ['nullable', Rule::exists('surat', 'id')->where('jenis', 'masuk')]
+                : ['prohibited'],
             'nomor_agenda' => ['required', 'string', 'max:100', 'unique:surat,nomor_agenda'],
             'nomor_surat' => ['required', 'string', 'max:150'],
             'tanggal_surat' => ['required', 'date'],
@@ -84,6 +90,9 @@ class PengendaliAplikasi extends Controller
         abort_unless(in_array($surat->status, ['Diterima', 'Konsep'], true), 422, 'Surat yang sudah diproses tidak dapat diedit.');
         $data = $request->validate([
             'kategori_id' => ['required', Rule::exists('kategori_dokumen', 'id')->where('aktif', true)],
+            'surat_masuk_id' => $surat->jenis === 'keluar'
+                ? ['nullable', Rule::exists('surat', 'id')->where('jenis', 'masuk')]
+                : ['prohibited'],
             'nomor_agenda' => ['required', 'string', 'max:100', Rule::unique('surat')->ignore($surat)],
             'nomor_surat' => ['required', 'string', 'max:150'],
             'tanggal_surat' => ['required', 'date'],

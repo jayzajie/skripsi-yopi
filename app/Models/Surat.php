@@ -12,7 +12,7 @@ class Surat extends Model
     protected $table = 'surat';
 
     protected $fillable = [
-        'kategori_id', 'jenis', 'nomor_agenda', 'nomor_surat', 'tanggal_surat',
+        'kategori_id', 'surat_masuk_id', 'jenis', 'nomor_agenda', 'nomor_surat', 'tanggal_surat',
         'pihak', 'perihal', 'status', 'file', 'disposisi', 'dibuat_oleh', 'ditugaskan_ke',
     ];
 
