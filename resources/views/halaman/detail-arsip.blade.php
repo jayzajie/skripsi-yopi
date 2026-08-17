@@ -31,6 +31,13 @@
                 <button class="tombol tombol-primer tombol-penuh">Tandai Tugas Selesai</button>
             </form>
         @endif
+        @if(auth()->user()->peran === 'super_admin')
+            <form method="post" action="{{ route('surat.hapus', $surat) }}" data-konfirmasi="Hapus surat ini beserta riwayat prosesnya?">
+                @csrf
+                @method('DELETE')
+                <button class="tombol tombol-sekunder tombol-penuh">Hapus Arsip</button>
+            </form>
+        @endif
     </section>
     <section class="panel preview-arsip">
         <h2>Preview Dokumen</h2>

@@ -107,6 +107,25 @@ class SistemArsipTest extends TestCase
         $this->assertDatabaseHas('verifikasi_ttd', ['surat_id' => $surat->id, 'valid' => false]);
     }
 
+    public function test_tanda_tangan_visual_dan_scan_tercatat_valid(): void
+    {
+        Storage::fake('local');
+        $admin = Pengguna::factory()->create(['peran' => 'admin']);
+        $superAdmin = Pengguna::factory()->create(['peran' => 'super_admin']);
+        $dokumen = [
+            ['gambar.pdf', 'VISUAL-1', '%PDF-1.7 /Subtype /Image /Width 542 /Height 169 stream ttd endstream', true],
+            ['scan.pdf', 'VISUAL-2', '%PDF-1.7 /Subtype /Image /Width 1117 /Height 1600 stream scan endstream', true],
+            ['tanpa-ttd.pdf', 'VISUAL-3', '%PDF-1.7 dokumen teks tanpa gambar', false],
+        ];
+
+        foreach ($dokumen as [$nama, $agenda, $isi, $valid]) {
+            Storage::put("surat/{$nama}", $isi);
+            $surat = $this->buatSurat($admin, ['nomor_agenda' => $agenda, 'file' => "surat/{$nama}"]);
+            $this->actingAs($superAdmin)->post(route('verifikasi.proses', $surat))->assertSessionHas('sukses');
+            $this->assertDatabaseHas('verifikasi_ttd', ['surat_id' => $surat->id, 'valid' => $valid]);
+        }
+    }
+
     public function test_pratinjau_memakai_pdf_asli_dan_pegawai_tidak_dapat_membuka_draf(): void
     {
         Storage::fake('local');

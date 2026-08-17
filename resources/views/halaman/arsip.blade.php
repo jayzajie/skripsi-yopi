@@ -46,6 +46,15 @@
                                         <button class="tombol tombol-mini tombol-primer">Selesaikan</button>
                                     </form>
                                 @endif
+                                @if(auth()->user()->peran === 'super_admin')
+                                    <form method="post" action="{{ route('surat.hapus', $item) }}" data-konfirmasi="Hapus surat ini beserta riwayat prosesnya?">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="tombol-ikon bahaya" aria-label="Hapus surat">
+                                            <svg><use href="#i-hapus"/></svg>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

@@ -27,6 +27,9 @@
                     <th>Asal/Tujuan</th>
                     <th>Tanggal</th>
                     <th>Status</th>
+                    @if(auth()->user()->peran === 'super_admin')
+                        <th>Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -39,9 +42,20 @@
                         <td>{{ $item->pihak }}</td>
                         <td>{{ $item->tanggal_surat->format('d/m/y') }}</td>
                         <td><span class="lencana {{ strtolower($item->status) }}">{{ $item->status }}</span></td>
+                        @if(auth()->user()->peran === 'super_admin')
+                            <td>
+                                <form method="post" action="{{ route('surat.hapus', $item) }}" data-konfirmasi="Hapus surat ini beserta riwayat prosesnya?">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="tombol-ikon bahaya" aria-label="Hapus surat">
+                                        <svg><use href="#i-hapus"/></svg>
+                                    </button>
+                                </form>
+                            </td>
+                        @endif
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="kosong">Tidak ada data pada periode ini.</td></tr>
+                    <tr><td colspan="{{ auth()->user()->peran === 'super_admin' ? 8 : 7 }}" class="kosong">Tidak ada data pada periode ini.</td></tr>
                 @endforelse
             </tbody>
         </table>

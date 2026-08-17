@@ -106,6 +106,59 @@ class MatriksCrudPeranTest extends TestCase
         $this->assertDatabaseMissing('users', ['id' => $pegawai->id]);
     }
 
+    public function test_super_admin_dapat_menghapus_surat_dari_semua_halaman_dan_status(): void
+    {
+        Storage::fake('local');
+        $superAdmin = Pengguna::factory()->create(['peran' => 'super_admin']);
+        $admin = Pengguna::factory()->create(['peran' => 'admin']);
+        $surat = collect([
+            ['masuk', 'Diterima'],
+            ['masuk', 'Didisposisikan'],
+            ['masuk', 'Selesai'],
+            ['keluar', 'Konsep'],
+            ['keluar', 'Disetujui'],
+            ['keluar', 'Terkirim'],
+        ])->map(function (array $data, int $index) use ($admin) {
+            $file = "surat/hapus-{$index}.pdf";
+            Storage::put($file, '%PDF-1.7');
+
+            return Surat::create([
+                'jenis' => $data[0],
+                'nomor_agenda' => "HAPUS-{$index}",
+                'nomor_surat' => "00{$index}/HAPUS",
+                'tanggal_surat' => '2026-08-18',
+                'pihak' => 'Pengujian',
+                'perihal' => "Penghapusan status {$data[1]}",
+                'status' => $data[1],
+                'file' => $file,
+                'dibuat_oleh' => $admin->id,
+            ]);
+        });
+
+        foreach (['masuk', 'keluar'] as $jenis) {
+            $halaman = $this->actingAs($superAdmin)->get(route('surat', $jenis))->assertOk();
+            foreach ($surat->where('jenis', $jenis) as $item) {
+                $halaman->assertSee(route('surat.hapus', $item), false);
+            }
+        }
+        foreach ([route('arsip'), route('laporan')] as $url) {
+            $halaman = $this->actingAs($superAdmin)->get($url)->assertOk();
+            foreach ($surat as $item) {
+                $halaman->assertSee(route('surat.hapus', $item), false);
+            }
+        }
+        $this->actingAs($superAdmin)->get(route('arsip.detail', $surat->first()))
+            ->assertOk()->assertSee(route('surat.hapus', $surat->first()), false);
+
+        $this->actingAs($admin)->delete(route('surat.hapus', $surat->firstWhere('status', 'Selesai')))
+            ->assertUnprocessable();
+        foreach ($surat as $item) {
+            $this->actingAs($superAdmin)->delete(route('surat.hapus', $item))->assertSessionHas('sukses');
+            $this->assertDatabaseMissing('surat', ['id' => $item->id]);
+            Storage::assertMissing($item->file);
+        }
+    }
+
     public function test_matriks_akses_tiga_role_sesuai_userflow(): void
     {
         $superAdmin = Pengguna::factory()->create(['peran' => 'super_admin']);

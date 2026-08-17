@@ -27,7 +27,7 @@
                         'master-data' => 'Master Data',
                         'akun' => 'Akun Pengguna',
                         'cadangan' => 'Backup & Restore',
-                        'verifikasi' => 'Verifikasi Tanda Tangan Digital',
+                        'verifikasi' => 'Verifikasi Tanda Tangan',
                         default => 'SIPADOK'
                     } }}
                 </h1>

@@ -143,7 +143,7 @@ class PengendaliAdministrasi extends Controller
             'nama_file' => basename($surat->file),
             'file' => $surat->file,
             'valid' => $valid,
-            'keterangan' => $valid ? 'Tanda tangan utuh dan sertifikat penandatangan tepercaya.' : 'Tanda tangan tidak ditemukan, berubah, atau sertifikat penandatangan tidak tepercaya.',
+            'keterangan' => $valid ? 'Tanda tangan digital atau visual terdeteksi pada dokumen.' : 'Tanda tangan tidak ditemukan pada dokumen.',
             'diverifikasi_oleh' => $request->user()->id,
         ]);
 

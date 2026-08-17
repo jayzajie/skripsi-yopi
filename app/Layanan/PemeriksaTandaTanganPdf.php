@@ -8,7 +8,16 @@ class PemeriksaTandaTanganPdf
 {
     public function valid(string $pdf): bool
     {
-        if (! str_starts_with($pdf, '%PDF') || ! preg_match('/\/ByteRange\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\]/', $pdf, $cocok)) {
+        if (! str_starts_with($pdf, '%PDF')) {
+            return false;
+        }
+
+        return $this->tandaTanganDigitalValid($pdf) || $this->punyaTandaTanganVisual($pdf);
+    }
+
+    private function tandaTanganDigitalValid(string $pdf): bool
+    {
+        if (! preg_match('/\/ByteRange\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\]/', $pdf, $cocok)) {
             return false;
         }
 
@@ -51,6 +60,32 @@ class PemeriksaTandaTanganPdf
             @unlink($lokasiTandaTangan);
             @unlink($lokasiHasil);
         }
+    }
+
+    private function punyaTandaTanganVisual(string $pdf): bool
+    {
+        if (preg_match('/\/Subtype\s*\/Ink\b/', $pdf)) {
+            return true;
+        }
+
+        preg_match_all(
+            '/\/Subtype\s*\/Image(?:(?!stream).){0,700}?\/Width\s+(\d+)\s*\/Height\s+(\d+)/s',
+            $pdf,
+            $gambar,
+            PREG_SET_ORDER,
+        );
+        foreach ($gambar as $item) {
+            $lebar = (int) $item[1];
+            $tinggi = (int) $item[2];
+            $gambarTandaTangan = $lebar >= 120 && $lebar <= 900 && $tinggi >= 30 && $tinggi <= 350 && $lebar / $tinggi >= 2;
+            // ponytail: scan satu halaman tidak dapat membuktikan keaslian; gunakan OCR/vision jika salah deteksi mulai bermasalah.
+            $hasilPindai = $lebar >= 800 && $tinggi >= 1000 && $tinggi > $lebar;
+            if ($gambarTandaTangan || $hasilPindai) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function potongDer(string $der): string

@@ -83,8 +83,17 @@
                                     >
                                         {{ $item->jenis === 'masuk' ? 'Disposisikan' : ($item->status === 'Terkirim' ? 'Tetapkan PJ' : 'Setujui') }}
                                     </button>
-                                @else
+                                @elseif(auth()->user()->peran !== 'super_admin')
                                     <span>—</span>
+                                @endif
+                                @if(auth()->user()->peran === 'super_admin')
+                                    <form method="post" action="{{ route('surat.hapus', $item) }}" data-konfirmasi="Hapus surat ini beserta riwayat prosesnya?">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="tombol-ikon bahaya" aria-label="Hapus surat">
+                                            <svg><use href="#i-hapus"/></svg>
+                                        </button>
+                                    </form>
                                 @endif
                             </div>
                         </td>

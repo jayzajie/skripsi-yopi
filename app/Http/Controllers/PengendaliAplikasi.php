@@ -132,9 +132,13 @@ class PengendaliAplikasi extends Controller
         return back()->with('sukses', 'Surat berhasil diperbarui.');
     }
 
-    public function hapusSurat(Surat $surat): RedirectResponse
+    public function hapusSurat(Request $request, Surat $surat): RedirectResponse
     {
-        abort_unless(in_array($surat->status, ['Diterima', 'Konsep'], true), 422, 'Surat yang sudah diproses tidak dapat dihapus.');
+        abort_unless(
+            $request->user()->peran === 'super_admin' || in_array($surat->status, ['Diterima', 'Konsep'], true),
+            422,
+            'Surat yang sudah diproses tidak dapat dihapus.',
+        );
         if ($surat->file) {
             Storage::delete($surat->file);
         }

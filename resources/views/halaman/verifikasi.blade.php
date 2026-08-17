@@ -2,7 +2,7 @@
     <div class="judul-panel">
         <div>
             <h2>Dokumen Surat</h2>
-            <p class="catatan-teknis">Pemeriksaan memakai PDF yang tersimpan pada arsip, sehingga hasilnya selalu terhubung ke surat yang benar.</p>
+            <p class="catatan-teknis">Pemeriksaan mendeteksi tanda tangan digital maupun visual pada PDF yang tersimpan di arsip. Tanda tangan visual menunjukkan keberadaan tanda tangan, bukan menjamin keasliannya secara kriptografis.</p>
         </div>
     </div>
     <div class="bungkus-tabel">

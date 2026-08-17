@@ -20,12 +20,12 @@ Route::middleware(['auth', 'aktif'])->group(function () {
 
     Route::middleware('peran:super_admin,admin')->group(function () {
         Route::get('/surat/{jenis}', [PengendaliAplikasi::class, 'surat'])->name('surat');
+        Route::delete('/surat/{surat}', [PengendaliAplikasi::class, 'hapusSurat'])->name('surat.hapus');
     });
 
     Route::middleware('peran:admin')->group(function () {
         Route::post('/surat/{jenis}', [PengendaliAplikasi::class, 'simpanSurat'])->name('surat.simpan');
         Route::put('/surat/{surat}', [PengendaliAplikasi::class, 'perbaruiSurat'])->name('surat.perbarui');
-        Route::delete('/surat/{surat}', [PengendaliAplikasi::class, 'hapusSurat'])->name('surat.hapus');
         Route::post('/surat/{surat}/terkirim', [PengendaliAplikasi::class, 'tandaiTerkirim'])->name('surat.terkirim');
     });
 
